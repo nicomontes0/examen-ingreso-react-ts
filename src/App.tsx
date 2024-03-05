@@ -1,24 +1,67 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
-function App() {
+interface CheckboxProps{
+  checked: boolean,
+  onChange: React.ChangeEventHandler<HTMLInputElement> | undefined,
+  label: string,
+};
+
+const Checkbox = ({checked, onChange, label}: CheckboxProps ) => (
+    <label className='countries__input'>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+      />
+      {label}
+    </label>
+);
+
+interface Country {
+  id: number;
+  name: string;
+}
+
+const COUNTRIES: Country[] = [
+  { id: 1, name: 'India' },
+  { id: 2, name: 'USA' },
+  { id: 3, name: 'France' },
+];
+
+const INITIAL_STATE_COUNTRIES: number[] = [];
+
+const App: React.FC = () => {
+  const [selectedCountries, setSelectedCountries] = useState<number[]>(INITIAL_STATE_COUNTRIES);
+  const areAllSelected = selectedCountries.length === COUNTRIES.length;
+
+  const handleCountryChange = (countryId: number) => {
+    if (selectedCountries.includes(countryId)) {
+      setSelectedCountries(selectedCountries.filter(id => id !== countryId));
+    } else {
+      setSelectedCountries([...selectedCountries, countryId]);
+    }
+  };
+
+  const handleSelectAll = () => {
+    setSelectedCountries(areAllSelected ? INITIAL_STATE_COUNTRIES : COUNTRIES.map(country => country.id));
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='countries'>
+        <Checkbox 
+          checked={areAllSelected}
+          onChange={handleSelectAll}
+          label='Select All'
+        />
+      {COUNTRIES.map(({id, name}) => (
+        <Checkbox
+          key={id}
+          checked={selectedCountries.includes(id)}
+          onChange={() => handleCountryChange(id)}
+          label={name}
+        />
+      ))}
     </div>
   );
 }
